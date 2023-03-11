@@ -2,7 +2,6 @@ import streamlit as st
 import tweepy
 import joblib
 import re
-from textblob import TextBlob
 
 # Load the model
 model_url = 'https://github.com/Adefebrian/nerforest/raw/main/model_1.pkl'
@@ -33,7 +32,7 @@ st.write("This app detects tweets about forest fires in real-time.")
 # Define keyword for searching tweets
 keyword = "forest fire OR kebakaran hutan OR kebakaran hutan"
 
-# Create streamlit loop for real-time data streaming
+# Create Streamlit loop for real-time data streaming
 while True:
     try:
         # Get tweets
@@ -43,17 +42,12 @@ while True:
         for tweet in tweets:
             text = tweet.text
             cleaned_text = clean_tweet_text(text)
-            polarity = TextBlob(cleaned_text).sentiment.polarity
-            if polarity > 0:
+            pred = model.predict([cleaned_text])[0]
+            if pred == 0:
                 label = 'Bukan Kebakaran'
-            elif polarity < 0:
+            elif pred == 1:
                 label = 'Kebakaran'
             else:
-                label = 'Penanganan'
-            pred = model.predict([cleaned_text])[0]
-            if pred == 1:
-                label = 'Kebakaran'
-            elif pred == 2:
                 label = 'Penanganan'
             st.write(f"{label}: {text}")
         
