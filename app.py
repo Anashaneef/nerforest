@@ -1,57 +1,39 @@
-import os
-import re
 from flask import Flask, jsonify, request
-from twitter_scraper import get_tweets
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+import numpy as np
 
 app = Flask(__name__)
 
-# Define keyword to search for
-keyword = 'kebakaran hutan'
+# Load trained model
+model = load_model('model.h5')
 
-# Define function to process text and predict label
-def predict_label(text):
-    # Map label indices to label text
-    label_map = {
-        0: 'bukan kebakaran',
-        1: 'kebakaran',
-        2: 'penanganan'
-    }
+# Initialize tokenizer with vocabulary size of 10000
+tokenizer = Tokenizer(num_words=10000)
 
-    # Preprocess text
-    text = text.lower()
-    text = re.sub(r'http\S+', '', text)  # Remove URLs
-    text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation
+@app.route('/predict', methods=['POST'])
+def predict():
+    # Get data from request
+    data = request.json
+    tweet = data['tweet']
 
-    # Predict label
-    # Replace the following line with your model prediction code
-    label = 0
+    # Tokenize text
+    tokenizer.fit_on_texts(tweet)
+    sequences = tokenizer.texts_to_sequences(tweet)
 
-    # Map label index to label text
-    label_text = label_map[label]
+    # Pad sequences
+    sequences_padded = pad_sequences(sequences, maxlen=100, padding='post', truncating='post')
 
-    return label_text
+    # Make predictions
+    predictions = model.predict(sequences_padded)
 
-# Define function to process tweet and predict label
-def process_tweet(tweet):
-    text = tweet['text']
-    label = predict_label(text)
-    print(f'Tweet: {text}')
-    print(f'Label: {label}')
-    print()
+    # Convert predictions to labels
+    labels = np.argmax(predictions, axis=1)
 
-# Define endpoint for processing new tweets
-@app.route('/process-tweets', methods=['POST'])
-def process_tweets():
-    tweets = request.get_json()['tweets']
-
-    for tweet in tweets:
-        process_tweet(tweet)
-
-    return jsonify({'message': 'Tweets processed successfully.'})
-
-# Stream tweets with keyword and process them in real time
-for tweet in get_tweets(keyword, pages=1):
-    process_tweet(tweet)
+    # Return predictions as JSON
+    return jsonify({'predictions': labels.tolist()})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+    app.run(debug=True)
