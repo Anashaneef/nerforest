@@ -3,17 +3,16 @@ import tweepy
 import pickle
 from flask import Flask, jsonify
 
-
 # Load model
 model_path = os.path.join(os.path.dirname(__file__), 'model', 'model_1.pkl')
 with open(model_path, 'rb') as f:
     model = pickle.load(f)
 
 # Twitter API credentials
-consumer_key = 'your_consumer_key'
-consumer_secret = 'your_consumer_secret'
-access_token = 'your_access_token'
-access_secret = 'your_access_secret'
+consumer_key = 'u9D8IF1iOVWaoRy24598GyRq9'
+consumer_secret = 'WYOe2e2Nkb2Q0EIvqK0spsOfdsiNk9lkzTkzvigUTn1PK5wrzm'
+access_token = '882952289450774529-NIYPtaMdpiJCbAVSINxORsjS0Ba2GaO'
+access_secret = 'LWuTR82dsTKdoK6AZ4j9SdDNbJhHDHlyBUDGO2fNLZxKe'
 
 # Initialize Tweepy API client
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -39,4 +38,4 @@ def get_tweets():
     return jsonify(data)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
