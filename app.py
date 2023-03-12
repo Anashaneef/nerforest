@@ -1,5 +1,5 @@
 import os
-import twitter
+import tweepy
 from tensorflow.keras.models import load_model
 from flask import Flask, jsonify
 
@@ -14,10 +14,9 @@ access_token = '882952289450774529-NIYPtaMdpiJCbAVSINxORsjS0Ba2GaO'
 access_secret = 'LWuTR82dsTKdoK6AZ4j9SdDNbJhHDHlyBUDGO2fNLZxKe'
 
 # Initialize Twitter API client
-api = twitter.Api(consumer_key=consumer_key,
-                  consumer_secret=consumer_secret,
-                  access_token_key=access_token,
-                  access_token_secret=access_secret)
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_secret)
+api = tweepy.API(auth)
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -32,7 +31,7 @@ label_map = {
 @app.route('/tweets')
 def get_tweets():
     # Crawl tweets about forest fires
-    tweets = api.GetSearch(term='kebakaran hutan', count=50)
+    tweets = api.search_tweets(q='kebakaran hutan', count=50)
 
     # Process tweets and construct JSON response
     data = []
