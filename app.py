@@ -2,17 +2,11 @@ import os
 import tweepy
 from tensorflow.keras.models import load_model
 from flask import Flask, jsonify
+from twitter_scraper import get_tweets
 
 # Load model
 model_path = os.path.join(os.path.dirname(__file__), 'model', 'model.h5')
 model = load_model(model_path)
-
-# Twitter API credentials
-bearer_token = 'AAAAAAAAAAAAAAAAAAAAALa8dgEAAAAAeBV0JiJMVZ9925dYnd%2BZcrkh0cM%3DDpJjkv1LBp0Dla1SDuhgpzCdeZvoYY80HLXW52Tn1JqP93JU2c'
-
-# Initialize Twitter API client
-auth = tweepy.AppAuthHandler(bearer_token=bearer_token)
-api = tweepy.API(auth)
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -26,13 +20,13 @@ label_map = {
 # Endpoint to fetch tweets and predict labels
 @app.route('/tweets')
 def get_tweets():
-    # Crawl tweets about forest fires
-    tweets = api.search_tweets(q='kebakaran hutan', count=50)
+    # Crawl tweets about forest fires using Twitter-Scraper
+    tweets = get_tweets('kebakaran hutan', pages=1)
 
     # Process tweets and construct JSON response
     data = []
     for tweet in tweets:
-        text = tweet.text
+        text = tweet['text']
         # Predict label
         label = model.predict([text])[0]
         # Map label to text
