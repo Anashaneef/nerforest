@@ -10,7 +10,6 @@ MarkupSafe==2.1.1
 numpy==1.23.4
 tensorflow
 keras
-tweepy
 twitter_scraper
 pandas==1.5.1
 pickle-mixin==1.0.2
