@@ -24,17 +24,24 @@ app = Flask(__name__)
 # Endpoint to fetch tweets and predict labels
 @app.route('/tweets')
 def get_tweets():
+    # Initialize Tweepy API client
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_secret)
+    api = tweepy.API(auth)
+
     # Crawl tweets about forest fires
     tweets = api.search(q='kebakaran hutan', count=50)
     
-    # Process tweets and predict labels
+    # Process tweets and construct JSON response
     data = []
     for tweet in tweets:
-        text = tweet.text
-        label = model.predict(text)[0]
-        data.append({'text': text, 'label': label})
+        data.append({'text': tweet.text})
     
-    return jsonify(data)
+    response = jsonify(data)
+    response.headers.add('Access-Control-Allow-Origin', '*') # Allow cross-domain requests
+    
+    return response
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
