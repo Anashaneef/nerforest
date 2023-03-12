@@ -29,8 +29,8 @@ def get_tweets_endpoint():
         text = tweet['text']
         # Predict label
         label = model.predict([text])[0]
-        # Map label to tex
-        label_text = label_map[label]
+        # Map label to text
+        label_text = label_map[label.argmax()]
         data.append({'text': text, 'label': label_text})
 
     response = jsonify(data)
