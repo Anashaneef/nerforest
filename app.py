@@ -1,5 +1,5 @@
 import os
-import tweepy
+import twitter
 from tensorflow.keras.models import load_model
 from flask import Flask, jsonify
 
@@ -13,33 +13,40 @@ consumer_secret = 'WYOe2e2Nkb2Q0EIvqK0spsOfdsiNk9lkzTkzvigUTn1PK5wrzm'
 access_token = '882952289450774529-NIYPtaMdpiJCbAVSINxORsjS0Ba2GaO'
 access_secret = 'LWuTR82dsTKdoK6AZ4j9SdDNbJhHDHlyBUDGO2fNLZxKe'
 
-# Initialize Tweepy API client
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_secret)
-api = tweepy.API(auth)
+# Initialize Twitter API client
+api = twitter.Api(consumer_key=consumer_key,
+                  consumer_secret=consumer_secret,
+                  access_token_key=access_token,
+                  access_token_secret=access_secret)
 
 # Initialize Flask app
 app = Flask(__name__)
 
+label_map = {
+    0: 'bukan kebakaran',
+    1: 'kebakaran',
+    2: 'penanganan'
+}
+
 # Endpoint to fetch tweets and predict labels
 @app.route('/tweets')
 def get_tweets():
-    # Initialize Tweepy API client
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_secret)
-    api = tweepy.API(auth)
-
     # Crawl tweets about forest fires
-    tweets = api.search_tweets(q='kebakaran hutan', count=50)
-    
+    tweets = api.GetSearch(term='kebakaran hutan', count=50)
+
     # Process tweets and construct JSON response
     data = []
     for tweet in tweets:
-        data.append({'text': tweet.text})
-    
+        text = tweet.text
+        # Predict label
+        label = model.predict([text])[0]
+        # Map label to text
+        label_text = label_map[label]
+        data.append({'text': text, 'label': label_text})
+
     response = jsonify(data)
     response.headers.add('Access-Control-Allow-Origin', '*') # Allow cross-domain requests
-    
+
     return response
 
 
