@@ -4,7 +4,7 @@ import tensorflow as tf
 import numpy as np
 
 # Load model
-model = tf.keras.models.load_model('model.h5')
+model = tf.keras.models.load_model('model.h5', compile=False)
 
 # Define label mapping
 label_mapping = {
@@ -120,5 +120,6 @@ def predict():
 
     return jsonify(response)
 
+# Run Flask app
 if __name__ == '__main__':
     app.run(debug=True)
