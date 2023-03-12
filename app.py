@@ -8,14 +8,10 @@ model_path = os.path.join(os.path.dirname(__file__), 'model', 'model.h5')
 model = load_model(model_path)
 
 # Twitter API credentials
-consumer_key = 'u9D8IF1iOVWaoRy24598GyRq9'
-consumer_secret = 'WYOe2e2Nkb2Q0EIvqK0spsOfdsiNk9lkzTkzvigUTn1PK5wrzm'
-access_token = '882952289450774529-NIYPtaMdpiJCbAVSINxORsjS0Ba2GaO'
-access_secret = 'LWuTR82dsTKdoK6AZ4j9SdDNbJhHDHlyBUDGO2fNLZxKe'
+bearer_token = 'AAAAAAAAAAAAAAAAAAAAALa8dgEAAAAAeBV0JiJMVZ9925dYnd%2BZcrkh0cM%3DDpJjkv1LBp0Dla1SDuhgpzCdeZvoYY80HLXW52Tn1JqP93JU2c'
 
 # Initialize Twitter API client
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_secret)
+auth = tweepy.AppAuthHandler(bearer_token=bearer_token)
 api = tweepy.API(auth)
 
 # Initialize Flask app
