@@ -4,7 +4,7 @@ import tensorflow as tf
 import numpy as np
 
 # Load model
-model = tf.keras.models.load_model('model.h5', compile=False)
+model = tf.keras.models.load_model('model.h5')
 
 # Define label mapping
 label_mapping = {
