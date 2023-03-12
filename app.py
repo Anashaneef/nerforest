@@ -49,7 +49,6 @@ def process_tweet(tweet):
 # Stream tweets with keyword and process them in real time
 stream = tweepy.Stream(auth=api.auth, listener=None)
 stream.filter(track=[keyword], is_async=True, languages=['id'])
-stream.filter(track=[keyword], async=True, languages=['id'], on_status=process_tweet)
 
 
 if __name__ == '__main__':
