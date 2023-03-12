@@ -30,7 +30,7 @@ def get_tweets():
     api = tweepy.API(auth)
 
     # Crawl tweets about forest fires
-    tweets = api.search(q='kebakaran hutan', count=50)
+    tweets = api.search_tweets(q='kebakaran hutan', count=50)
     
     # Process tweets and construct JSON response
     data = []
