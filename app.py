@@ -1,42 +1,55 @@
-import os
 import tweepy
 from tensorflow.keras.models import load_model
-from flask import Flask, jsonify
-from twitter_scraper import get_tweets
 
 # Load model
-model_path = os.path.join(os.path.dirname(__file__), 'model', 'model.h5')
+model_path = 'model.h5'
 model = load_model(model_path)
 
-# Initialize Flask app
-app = Flask(__name__)
+# Set up Twitter API credentials
+consumer_key = 'u9D8IF1iOVWaoRy24598GyRq9'
+consumer_secret = 'WYOe2e2Nkb2Q0EIvqK0spsOfdsiNk9lkzTkzvigUTn1PK5wrzm'
+access_token = '882952289450774529-NIYPtaMdpiJCbAVSINxORsjS0Ba2GaO'
+access_token_secret = 'LWuTR82dsTKdoK6AZ4j9SdDNbJhHDHlyBUDGO2fNLZxKe'
 
-label_map = {
-    0: 'bukan kebakaran',
-    1: 'kebakaran',
-    2: 'penanganan'
-}
+# Authenticate with Twitter API
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
 
-# Endpoint to fetch tweets and predict labels
-@app.route('/tweets')
-def get_tweets_endpoint():
-    # Crawl tweets about forest fires using Twitter-Scraper
-    tweets = get_tweets('kebakaran hutan')
+# Initialize Tweepy API client
+api = tweepy.API(auth)
 
-    # Process tweets and construct JSON response
-    data = []
-    for tweet in tweets:
-        text = tweet['text']
-        # Predict label
-        label = model.predict([text])[0]
-        # Map label to text
-        label_text = label_map[label.argmax()]
-        data.append({'text': text, 'label': label_text})
+# Define keyword to search for
+keyword = 'kebakaran hutan'
 
-    response = jsonify(data)
-    response.headers.add('Access-Control-Allow-Origin', '*') # Allow cross-domain requests
+# Define function to process text and predict label
+def predict_label(text):
+    # Map label indices to label text
+    label_map = {
+        0: 'bukan kebakaran',
+        1: 'kebakaran',
+        2: 'penanganan'
+    }
+    
+    # Predict label
+    label = model.predict([text])[0]
+    
+    # Map label index to label text
+    label_text = label_map[label.argmax()]
+    
+    return label_text
 
-    return response
+# Define function to process tweet and predict label
+def process_tweet(tweet):
+    text = tweet.text
+    label = predict_label(text)
+    print(f'Tweet: {text}')
+    print(f'Label: {label}')
+    print()
+
+# Stream tweets with keyword and process them in real time
+stream = tweepy.Stream(auth=api.auth, listener=None)
+stream.filter(track=[keyword], is_async=True, languages=['id'])
+stream.filter(track=[keyword], async=True, languages=['id'], on_status=process_tweet)
 
 
 if __name__ == '__main__':
