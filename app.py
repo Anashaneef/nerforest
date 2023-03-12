@@ -19,9 +19,9 @@ label_map = {
 
 # Endpoint to fetch tweets and predict labels
 @app.route('/tweets')
-def get_tweets():
+def get_tweets_endpoint():
     # Crawl tweets about forest fires using Twitter-Scraper
-    tweets = get_tweets('kebakaran hutan', pages=1)
+    tweets = get_tweets('kebakaran hutan')
 
     # Process tweets and construct JSON response
     data = []
@@ -29,7 +29,7 @@ def get_tweets():
         text = tweet['text']
         # Predict label
         label = model.predict([text])[0]
-        # Map label to text
+        # Map label to tex
         label_text = label_map[label]
         data.append({'text': text, 'label': label_text})
 
