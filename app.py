@@ -1,9 +1,15 @@
 from flask import Flask, jsonify, request
 import numpy as np
 from keras.models import load_model
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
 
 # Load the GRU model
 model = load_model('model.h5')
+
+# Define the tokenizer
+tokenizer = Tokenizer(num_words=1000)
+tokenizer.fit_on_texts(['kebakaran', 'penanganan', 'bukan'])
 
 # Define the Flask app
 app = Flask(__name__)
@@ -20,10 +26,11 @@ def predict():
     text = request.json['text']
     
     # Preprocess the text
-    # ...
+    text_sequence = tokenizer.texts_to_sequences([text])
+    text_sequence_padded = pad_sequences(text_sequence, maxlen=100)
     
     # Predict the label for the text
-    label_id = np.argmax(model.predict(text))
+    label_id = np.argmax(model.predict(text_sequence_padded))
     
     # Manipulate the label
     if label_id == 0:
