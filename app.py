@@ -1,11 +1,14 @@
 from flask import Flask, jsonify, request
 import numpy as np
+import joblib
 from keras.models import load_model
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
+from flask_cors import CORS
 
 # Load the GRU model
-model = load_model('model.h5')
+file = open('model.pkl', 'rb')
+model = joblib.load(file)
 
 # Define the tokenizer
 tokenizer = Tokenizer(num_words=1000)
@@ -13,6 +16,7 @@ tokenizer.fit_on_texts(['kebakaran', 'penanganan', 'bukan'])
 
 # Define the Flask app
 app = Flask(__name__)
+CORS(app)
 
 # Define the route for the model deployment information
 @app.route('/', methods=['GET'])
